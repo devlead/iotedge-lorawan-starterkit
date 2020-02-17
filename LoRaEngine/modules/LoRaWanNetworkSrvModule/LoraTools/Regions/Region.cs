@@ -26,7 +26,7 @@ namespace LoRaTools.Regions
         /// max application payload size N should be N= M-8 bytes.
         /// This is in case of absence of Fopts field.
         /// </summary>
-        public Dictionary<uint, (string configuration, uint maxPyldSize)> DRtoConfiguration { get; set; } = new Dictionary<uint, (string, uint)>();
+        public Dictionary<ushort, (string configuration, uint maxPyldSize)> DRtoConfiguration { get; set; } = new Dictionary<ushort, (string, uint)>();
 
         /// <summary>
         /// Gets or sets by default MaxEIRP is considered to be +16dBm.
@@ -44,7 +44,7 @@ namespace LoRaTools.Regions
         /// <summary>
         /// Gets or sets default parameters for the RX2 receive Windows, This windows use a fix frequency and Data rate.
         /// </summary>
-        public (double frequency, uint dr) RX2DefaultReceiveWindows { get; set; }
+        public (double frequency, ushort dr) RX2DefaultReceiveWindows { get; set; }
 
         /// <summary>
         /// Gets or sets default first receive windows. [sec]
@@ -99,7 +99,7 @@ namespace LoRaTools.Regions
         /// </summary>
         public int MaxADRDataRate { get; set; }
 
-        public Region(LoRaRegionType regionEnum, byte loRaSyncWord, byte[] gFSKSyncWord, (double frequency, uint datr) rx2DefaultReceiveWindows, uint receive_delay1, uint receive_delay2, uint join_accept_delay1, uint join_accept_delay2, int max_fcnt_gap, uint adr_ack_limit, uint adr_adr_delay, (uint min, uint max) ack_timeout)
+        public Region(LoRaRegionType regionEnum, byte loRaSyncWord, byte[] gFSKSyncWord, (double frequency, ushort datr) rx2DefaultReceiveWindows, uint receive_delay1, uint receive_delay2, uint join_accept_delay1, uint join_accept_delay2, int max_fcnt_gap, uint adr_ack_limit, uint adr_adr_delay, (uint min, uint max) ack_timeout)
         {
             this.LoRaRegion = regionEnum;
             this.Ack_timeout = ack_timeout;
@@ -160,7 +160,7 @@ namespace LoRaTools.Regions
         /// Method to calculate the RX2 DataRate and frequency.
         /// Those parameters can be set in the device twins, Server Twins, or it could be a regional feature.
         /// </summary>
-        public (double freq, string datr) GetDownstreamRX2DRAndFreq(string devEUI, string nwkSrvRx2Dr, double nwkSrvRx2Freq, int? rx2DrFromTwins)
+        public (double freq, string datr) GetDownstreamRX2DRAndFreq(string devEUI, string nwkSrvRx2Dr, double nwkSrvRx2Freq, ushort? rx2DrFromTwins)
         {
             double freq = 0;
             string datr;
@@ -186,7 +186,7 @@ namespace LoRaTools.Regions
             }
             else
             {
-                uint rx2Dr = (uint)rx2DrFromTwins;
+                ushort rx2Dr = (ushort)rx2DrFromTwins;
                 if (this.RegionLimits.IsCurrentDownstreamDRIndexWithinAcceptableValue(rx2Dr))
                 {
                     datr = this.DRtoConfiguration[rx2Dr].configuration;
@@ -217,7 +217,7 @@ namespace LoRaTools.Regions
                 if (rx1DrOffset <= this.RX1DROffsetTable.GetUpperBound(1))
                 {
                     // in case of EU, you respond on same frequency as you sent data.
-                    return this.DRtoConfiguration[(uint)this.RX1DROffsetTable[this.GetDRFromFreqAndChan(upstreamChannel.Datr), rx1DrOffset]].configuration;
+                    return this.DRtoConfiguration[(ushort)this.RX1DROffsetTable[this.GetDRFromFreqAndChan(upstreamChannel.Datr), rx1DrOffset]].configuration;
                 }
                 else
                 {

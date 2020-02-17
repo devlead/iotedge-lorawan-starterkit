@@ -151,7 +151,7 @@ namespace LoRaWanTest
         [InlineData(LoRaRegionType.US915, 2)]
         [InlineData(LoRaRegionType.US915, 13, false)]
         [InlineData(LoRaRegionType.US915, 10, false)]
-        public void Check_Correct_RXPK_Datr_Are_Accepted(LoRaRegionType loRaRegionType, uint datrIndex, bool upstream = true)
+        public void Check_Correct_RXPK_Datr_Are_Accepted(LoRaRegionType loRaRegionType, ushort datrIndex, bool upstream = true)
         {
             if (loRaRegionType == LoRaRegionType.EU868)
             {
@@ -188,7 +188,7 @@ namespace LoRaWanTest
         [InlineData(LoRaRegionType.US915, 10)]
         [InlineData(LoRaRegionType.US915, 2, false)]
         [InlineData(LoRaRegionType.US915, 12)]
-        public void Check_incorrect_RXPK_Datr_Are_Refused(LoRaRegionType loRaRegionType, uint datrIndex, bool upstream = true)
+        public void Check_incorrect_RXPK_Datr_Are_Refused(LoRaRegionType loRaRegionType, ushort datrIndex, bool upstream = true)
         {
             if (loRaRegionType == LoRaRegionType.EU868)
             {

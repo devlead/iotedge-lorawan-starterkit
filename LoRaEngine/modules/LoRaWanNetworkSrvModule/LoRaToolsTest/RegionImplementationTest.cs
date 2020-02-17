@@ -156,20 +156,20 @@ namespace LoRaWanTest
         {
             string jsonUplink =
                 @"{ ""rxpk"":[
- 	            {
-		            ""time"":""2013-03-31T16:21:17.528002Z"",
- 		            ""tmst"":3512348611,
- 		            ""chan"":2,
- 		            ""rfch"":0,
- 		            ""freq"":" + freq + @",
- 		            ""stat"":1,
- 		            ""modu"":""LORA"",
- 		            ""datr"":""" + datr + @""",
- 		            ""codr"":""4/6"",
- 		            ""rssi"":-35,
- 		            ""lsnr"":5.1,
- 		            ""size"":32,
- 		            ""data"":""AAQDAgEEAwIBBQQDAgUEAwItEGqZDhI=""
+                {
+                    ""time"":""2013-03-31T16:21:17.528002Z"",
+                    ""tmst"":3512348611,
+                    ""chan"":2,
+                    ""rfch"":0,
+                    ""freq"":" + freq + @",
+                    ""stat"":1,
+                    ""modu"":""LORA"",
+                    ""datr"":""" + datr + @""",
+                    ""codr"":""4/6"",
+                    ""rssi"":-35,
+                    ""lsnr"":5.1,
+                    ""size"":32,
+                    ""data"":""AAQDAgEEAwIBBQQDAgUEAwItEGqZDhI=""
                 }]}";
 
             var multiRxpkInput = Encoding.Default.GetBytes(jsonUplink);

@@ -34,7 +34,7 @@ namespace LoRaWan.NetworkServer
         public string Rx2DataRate { get; set; }
 
         // Gets/sets the 2nd receive windows data frequency
-        public double Rx2DataFrequency { get; set; }
+        public double? Rx2DataFrequency { get; set; }
 
         // Gets/sets a IoT edge timeout, 0 keeps the default value
         public uint IoTEdgeTimeout { get; set; }
@@ -95,7 +95,11 @@ namespace LoRaWan.NetworkServer
             config.GatewayID = envVars.GetEnvVar("IOTEDGE_DEVICEID", string.Empty);
             config.HttpsProxy = envVars.GetEnvVar("HTTPS_PROXY", string.Empty);
             config.Rx2DataRate = envVars.GetEnvVar("RX2_DATR", string.Empty);
-            config.Rx2DataFrequency = envVars.GetEnvVar("RX2_FREQ", config.Rx2DataFrequency);
+            if (config.Rx2DataFrequency.HasValue)
+            {
+                config.Rx2DataFrequency = envVars.GetEnvVar("RX2_FREQ", config.Rx2DataFrequency.Value);
+            }
+
             config.IoTEdgeTimeout = envVars.GetEnvVar("IOTEDGE_TIMEOUT", config.IoTEdgeTimeout);
             config.FacadeServerUrl = envVars.GetEnvVar("FACADE_SERVER_URL", string.Empty);
             config.FacadeAuthCode = envVars.GetEnvVar("FACADE_AUTH_CODE", string.Empty);

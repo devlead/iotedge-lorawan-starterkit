@@ -160,46 +160,52 @@ namespace LoRaTools.Regions
         /// Method to calculate the RX2 DataRate and frequency.
         /// Those parameters can be set in the device twins, Server Twins, or it could be a regional feature.
         /// </summary>
-        public (double freq, string datr) GetDownstreamRX2DRAndFreq(string devEUI, string nwkSrvRx2Dr, double nwkSrvRx2Freq, ushort? rx2DrFromTwins)
+        public (double freq, string datr) GetDownstreamRX2DRAndFreq(string devEUI, string nwkSrvRx2Dr, double? nwkSrvRx2Freq, ushort? rx2DrFromTwins)
         {
             double freq = 0;
             string datr;
 
-            // If the rx2 property is in twins, it is device specific and take precedence
-            if (rx2DrFromTwins == null)
+            // If the rx2 datarate property is in twins, we take it from there
+            if (rx2DrFromTwins.HasValue)
+            {
+                if (this.RegionLimits.IsCurrentDownstreamDRIndexWithinAcceptableValue(rx2DrFromTwins))
+                {
+                    datr = this.DRtoConfiguration[rx2DrFromTwins.Value].configuration;
+                    Logger.Log(devEUI, $"using device rx2: {rx2DrFromTwins}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
+                }
+                else
+                {
+                    datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
+                    Logger.Log(devEUI, $"device rx2 ({rx2DrFromTwins.Value}) is invalid, using default: {this.RX2DefaultReceiveWindows.dr}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
+                }
+            }
+            else
             {
                 // Otherwise we check if we have some properties set on the server (server Specific)
                 if (string.IsNullOrEmpty(nwkSrvRx2Dr))
                 {
                     // If not we use the region default.
-                    Logger.Log(devEUI, $"using standard second receive windows for join request", LogLevel.Debug);
-                    // using EU fix DR for RX2
-                    freq = this.RX2DefaultReceiveWindows.frequency;
                     datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
+                    Logger.Log(devEUI, $"using standard region RX2 datarate DR{datr}", LogLevel.Debug);
                 }
                 else
                 {
-                    Logger.Log(devEUI, $"using custom second receive windows for join request", LogLevel.Debug);
-                    freq = nwkSrvRx2Freq;
                     datr = nwkSrvRx2Dr;
+                    Logger.Log(devEUI, $"using custom gateway RX2 datarate DR{datr}", LogLevel.Debug);
                 }
+            }
+
+            // resolve frequency to gateway if setted to region's default
+            if (nwkSrvRx2Freq.HasValue)
+            {
+                freq = nwkSrvRx2Freq.Value;
+                Logger.Log(devEUI, $"using custom gateway RX2 frequency {freq}", LogLevel.Debug);
             }
             else
             {
-                ushort rx2Dr = (ushort)rx2DrFromTwins;
-                if (this.RegionLimits.IsCurrentDownstreamDRIndexWithinAcceptableValue(rx2Dr))
-                {
-                    datr = this.DRtoConfiguration[rx2Dr].configuration;
-                    Logger.Log(devEUI, $"using device rx2: {rx2Dr}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
-                }
-                else
-                {
-                    datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
-                    Logger.Log(devEUI, $"device rx2 ({rx2Dr}) is invalid, using default: {this.RX2DefaultReceiveWindows.dr}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
-                }
-
-                // Todo add optional frequencies via Mac Commands
+                // default frequency
                 freq = this.RX2DefaultReceiveWindows.frequency;
+                Logger.Log(devEUI, $"using standard region RX2 frequency {freq}", LogLevel.Debug);
             }
 
             return (freq, datr);

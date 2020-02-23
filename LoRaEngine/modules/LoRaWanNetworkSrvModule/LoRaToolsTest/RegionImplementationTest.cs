@@ -237,5 +237,22 @@ namespace LoRaWanTest
         {
             Assert.Equal(RegionManager.US915.GetMaxPayloadSize(datr), maxPyldSize);
         }
+
+        [Theory]
+        [InlineData(LoRaRegionType.EU868, "", null, null, 869.525, "SF12BW125")] // Standard EU.
+        [InlineData(LoRaRegionType.EU868, "SF9BW125", null, null, 869.525, "SF9BW125")] // nwksrvDR is correctly applied if no device twins.
+        [InlineData(LoRaRegionType.EU868, "SF9BW125", 868.250, (ushort)6, 868.250, "SF7BW250")] // device twins are applied in priority.
+        [InlineData(LoRaRegionType.US915, "", null, null, 923.3, "SF12BW500")] // Standard US.
+        [InlineData(LoRaRegionType.US915, "SF9BW500", null, null, 923.3, "SF9BW500")] // Standard EU.
+        [InlineData(LoRaRegionType.US915, "SF9BW500", 920.0, (ushort)12, 920.0, "SF8BW500")] // Standard EU.
+
+        public void GetDownStreamRx2(LoRaRegionType loRaRegion, string nwksrvrx2dr, double? nwksrvrx2freq, ushort? rx2drfromtwins, double expectedFreq, string expectedDr)
+        {
+            var devEui = "testDevice";
+            RegionManager.TryTranslateToRegion(loRaRegion, out Region region);
+            var result = region.GetDownstreamRX2DRAndFreq(devEui, nwksrvrx2dr, nwksrvrx2freq, rx2drfromtwins);
+            Assert.Equal(expectedFreq, result.freq);
+            Assert.Equal(expectedDr, result.datr);
+        }
     }
 }

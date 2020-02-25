@@ -157,26 +157,50 @@ namespace LoRaTools.Regions
         }
 
         /// <summary>
-        /// Method to calculate the RX2 DataRate and frequency.
-        /// Those parameters can be set in the device twins, Server Twins, or it could be a regional feature.
+        /// Get the downstream RX2 frequency.
         /// </summary>
-        public (double freq, string datr) GetDownstreamRX2DRAndFreq(string devEUI, string nwkSrvRx2Dr, double? nwkSrvRx2Freq, ushort? rx2DrFromTwins)
+        /// <param name="devEUI">the device id.</param>
+        /// <param name="nwkSrvRx2Freq">the value of the rx2freq env var on the nwk srv.</param>
+        /// <returns>rx2 freq.</returns>
+        public double GetDownstreamRX2Freq(string devEUI, double? nwkSrvRx2Freq)
         {
-            double freq = 0;
-            string datr;
+            // resolve frequency to gateway if setted to region's default
+            if (nwkSrvRx2Freq.HasValue)
+            {
+                Logger.Log(devEUI, $"using custom gateway RX2 frequency {nwkSrvRx2Freq}", LogLevel.Debug);
+                return nwkSrvRx2Freq.Value;
+            }
+            else
+            {
+                // default frequency
+                Logger.Log(devEUI, $"using standard region RX2 frequency {this.RX2DefaultReceiveWindows.frequency}", LogLevel.Debug);
+                return this.RX2DefaultReceiveWindows.frequency;
+            }
+        }
 
+        /// <summary>
+        /// Get downstream RX2 datarate
+        /// </summary>
+        /// <param name="devEUI">the device id.</param>
+        /// <param name="nwkSrvRx2Dr">the network server rx2 datarate.</param>
+        /// <param name="rx2DrFromTwins">rx2 datarate value from twins.</param>
+        /// <returns>the rx2 datarate.</returns>
+        public string GetDownstreamRX2Datarate(string devEUI, string nwkSrvRx2Dr, ushort? rx2DrFromTwins)
+        {
             // If the rx2 datarate property is in twins, we take it from there
             if (rx2DrFromTwins.HasValue)
             {
                 if (this.RegionLimits.IsCurrentDownstreamDRIndexWithinAcceptableValue(rx2DrFromTwins))
                 {
-                    datr = this.DRtoConfiguration[rx2DrFromTwins.Value].configuration;
-                    Logger.Log(devEUI, $"using device rx2: {rx2DrFromTwins}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
+                    var datr = this.DRtoConfiguration[rx2DrFromTwins.Value].configuration;
+                    Logger.Log(devEUI, $"using device twins rx2: {rx2DrFromTwins.Value}, datr: {datr}", LogLevel.Debug);
+                    return datr;
                 }
                 else
                 {
-                    datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
-                    Logger.Log(devEUI, $"device rx2 ({rx2DrFromTwins.Value}) is invalid, using default: {this.RX2DefaultReceiveWindows.dr}, datr: {datr}, region: {this.LoRaRegion}", LogLevel.Debug);
+                    var datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
+                    Logger.Log(devEUI, $"device twins rx2 ({rx2DrFromTwins.Value}) is invalid, using default: {this.RX2DefaultReceiveWindows.dr}, datr: {datr}", LogLevel.Debug);
+                    return datr;
                 }
             }
             else
@@ -185,30 +209,17 @@ namespace LoRaTools.Regions
                 if (string.IsNullOrEmpty(nwkSrvRx2Dr))
                 {
                     // If not we use the region default.
-                    datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
-                    Logger.Log(devEUI, $"using standard region RX2 datarate DR{datr}", LogLevel.Debug);
+                    var datr = this.DRtoConfiguration[this.RX2DefaultReceiveWindows.dr].configuration;
+                    Logger.Log(devEUI, $"using standard region RX2 datarate {datr}", LogLevel.Debug);
+                    return datr;
                 }
                 else
                 {
-                    datr = nwkSrvRx2Dr;
-                    Logger.Log(devEUI, $"using custom gateway RX2 datarate DR{datr}", LogLevel.Debug);
+                    var datr = nwkSrvRx2Dr;
+                    Logger.Log(devEUI, $"using custom gateway RX2 datarate {datr}", LogLevel.Debug);
+                    return datr;
                 }
             }
-
-            // resolve frequency to gateway if setted to region's default
-            if (nwkSrvRx2Freq.HasValue)
-            {
-                freq = nwkSrvRx2Freq.Value;
-                Logger.Log(devEUI, $"using custom gateway RX2 frequency {freq}", LogLevel.Debug);
-            }
-            else
-            {
-                // default frequency
-                freq = this.RX2DefaultReceiveWindows.frequency;
-                Logger.Log(devEUI, $"using standard region RX2 frequency {freq}", LogLevel.Debug);
-            }
-
-            return (freq, datr);
         }
 
         /// <summary>

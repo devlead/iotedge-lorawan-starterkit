@@ -250,9 +250,10 @@ namespace LoRaWanTest
         {
             var devEui = "testDevice";
             RegionManager.TryTranslateToRegion(loRaRegion, out Region region);
-            var result = region.GetDownstreamRX2DRAndFreq(devEui, nwksrvrx2dr, nwksrvrx2freq, rx2drfromtwins);
-            Assert.Equal(expectedFreq, result.freq);
-            Assert.Equal(expectedDr, result.datr);
+            var datr = region.GetDownstreamRX2Datarate(devEui, nwksrvrx2dr, rx2drfromtwins);
+            var freq = region.GetDownstreamRX2Freq(devEui, nwksrvrx2freq);
+            Assert.Equal(expectedFreq, freq);
+            Assert.Equal(expectedDr, datr);
         }
     }
 }

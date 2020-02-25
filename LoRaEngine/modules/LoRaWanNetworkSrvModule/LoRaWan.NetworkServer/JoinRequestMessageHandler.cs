@@ -187,7 +187,8 @@ namespace LoRaWan.NetworkServer
                     Logger.Log(devEUI, $"processing of the join request took too long, using second join accept receive window", LogLevel.Debug);
                     tmst = request.Rxpk.Tmst + loraRegion.Join_accept_delay2 * 1000000;
 
-                    (freq, datr) = loraRegion.GetDownstreamRX2DRAndFreq(devEUI, this.configuration.Rx2DataRate, this.configuration.Rx2DataFrequency, null);
+                    freq = loraRegion.GetDownstreamRX2Freq(devEUI, this.configuration.Rx2Frequency);
+                    datr = loraRegion.GetDownstreamRX2Datarate(devEUI, this.configuration.Rx2DataRate, null);
                 }
 
                 loRaDevice.IsOurDevice = true;
